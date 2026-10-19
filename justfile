@@ -9,7 +9,7 @@ run:
 # Install dependencies
 [group("dependencies")]
 install:
-    pip install -r requirements.txt
+    pip install -e ".[dev]"
 
 # Run linting checks
 [group("lint")]

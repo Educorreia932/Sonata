@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools >= 61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sonata"
+version = "0.1.0"
+description = "A Discord bot for music lovers"
+readme = "README.md"
+keywords = ["discord", "music", "bot", "rateyourmusic"]
+requires-python = ">=3.12"
+dependencies = [
+    "discord.py",
+    "lyricsgenius",
+    "beautifulsoup4",
+    "peewee",
+    "python-dotenv",
+    "requests",
+    "syncedlyrics",
+]
+authors = [{ name = "Eduardo Correia" }]
+maintainers = [{ name = "Eduardo Correia" }]
+
+[project.optional-dependencies]
+dev = ["pytest>=9.0"]
+
+[project.urls]
+Homepage = "https://hsc00.github.io/sonata-bot/"
+Repository = "https://github.com/Educorreia932/Sonata"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+pythonpath = [".", "bot"]
+addopts = ["-ra", "-q"]
+testpaths = ["tests"]
+
+[tool.ty.environment]
+root = [".", "bot"]
+python-version = "3.12"
+
+[project.scripts]
+sonata = "bot:run"
+
+[tool.setuptools]
+package-dir = { "" = "bot" }
+py-modules = ["bot"]
+
+[tool.setuptools.packages.find]
+where = ["bot"]
