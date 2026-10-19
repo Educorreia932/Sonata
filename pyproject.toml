@@ -3,7 +3,7 @@ requires = ["setuptools >= 61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sonata"
+name = "SonataBot"
 version = "0.1.0"
 description = "A Discord bot for music lovers"
 readme = "README.md"
