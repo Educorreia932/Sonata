@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal
 
 from api.sputnik import fetch_new_releases
@@ -297,9 +297,9 @@ class ReleasesCog(commands.Cog):
         """Get the best rated albums of a given year."""
 
         if year is None:
-            year = datetime.now(tz=timezone.utc).year
+            year = datetime.now(tz=UTC).year
 
-        elif year < 1900 or year > datetime.now(tz=timezone.utc).year:
+        elif year < 1900 or year > datetime.now(tz=UTC).year:
             raise InvalidYearError(year)
 
         if not user:
@@ -379,10 +379,7 @@ class ReleasesCog(commands.Cog):
         for release_name in new_releases:
             release = await fetch_album(str(ctx.author.id), release_name)
 
-            if (
-                release is None
-                or release.release_year != datetime.now(tz=timezone.utc).year
-            ):
+            if release is None or release.release_year != datetime.now(tz=UTC).year:
                 continue
 
             embed = album_embed(release)

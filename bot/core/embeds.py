@@ -150,7 +150,7 @@ def album_embed(album: Album) -> discord.Embed:
     )
 
 
-def who_rated_release_embed(
+def who_rated_release_embed(  # ruff: ignore[PLR0917]
     ratings: list[Rating],
     album: Album,
     average_score: int,

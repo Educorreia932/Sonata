@@ -37,6 +37,7 @@ lint.ignore = [
     "ANN003",   # Missing type kwargs
     "ASYNC210", # Blocking HTTP call in async function
     "COM812",
+    "CPY001",   # Missing copyright
     # Missing docstring
     "D100",
     "D101",
