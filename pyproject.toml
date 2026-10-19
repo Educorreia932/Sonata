@@ -23,6 +23,7 @@ maintainers = [{ name = "Eduardo Correia" }]
 
 [project.optional-dependencies]
 dev = ["pytest>=9.0"]
+docs = ["mkdocs", "mkdocs-material"]
 
 [project.urls]
 Homepage = "https://hsc00.github.io/sonata-bot/"

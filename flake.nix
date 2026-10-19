@@ -28,6 +28,7 @@
 
         python = pkgs.python312.override {
           packageOverrides = final: _prev: {
+            anyio = _prev.anyio.overridePythonAttrs { doCheck = false; };
             discord-py = final.discordpy;
             lyricsgenius = import ./nix/lyricsgenius.nix {
               inherit (pkgs) lib;
@@ -42,7 +43,10 @@
             (python.withPackages (
               project.renderers.withPackages {
                 inherit python;
-                extras = [ "dev" ];
+                extras = [
+                  "dev"
+                  "docs"
+                ];
               }
             ))
             just
