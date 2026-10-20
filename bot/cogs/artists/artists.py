@@ -37,8 +37,8 @@ class ArtistCog(commands.Cog):
     ) -> None:
         """Get the ratings for a given artist."""
         if user is None:
-            user_id = str(ctx.message.author.id)
-            user_name = ctx.message.author.display_name
+            user_id = str(ctx.author.id)
+            user_name = ctx.author.display_name
 
         else:
             user_id = str(user.id)
@@ -52,7 +52,7 @@ class ArtistCog(commands.Cog):
                 raise NoLastFMUsernameError
 
             _, artist_name, _ = get_last_played(last_fm_username)
-            user_id = ctx.message.author.id
+            user_id = str(ctx.author.id)
 
             if not artist_name:
                 await ctx.send(

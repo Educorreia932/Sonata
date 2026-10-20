@@ -1,9 +1,8 @@
 """Tests for core utility functions."""
 
 import pytest
-
-from bot.core.constants import FULL_STAR, HALF_STAR
-from bot.core.utils import (
+from core.constants import FULL_STAR, HALF_STAR
+from core.utils import (
     score_to_stars,
 )
 

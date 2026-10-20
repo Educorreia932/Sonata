@@ -42,6 +42,14 @@ python-version = "3.12"
 [tool.ty.rules]
 invalid-attribute-override = "ignore"
 
+[[tool.ty.overrides]]
+include = ["tests/**"]
+
+[tool.ty.overrides.rules]
+invalid-argument-type = "ignore"
+too-many-positional-arguments = "ignore"
+parameter-already-assigned = "ignore"
+
 [project.scripts]
 sonata = "bot:run"
 
