@@ -53,7 +53,7 @@ class ReleasesCog(commands.Cog):
 
             ctx = await self.bot.get_context(message)
 
-            await self.release.callback(self, ctx, release_name=f"{artist} {album}")
+            await self.release(ctx, release_name=f"{artist} {album}")
 
     @commands.hybrid_command(
         name="release", aliases=["r", "a", "album"], with_app_command=True

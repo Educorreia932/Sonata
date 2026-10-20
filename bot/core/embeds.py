@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from math import ceil
-from typing import TYPE_CHECKING, Self, TypedDict
+from typing import TYPE_CHECKING, Self, TypedDict, cast
 
 import discord
 from core.constants import RYM_RATING_COLORS
@@ -214,7 +214,7 @@ def album_of_the_year_embed(
 
     for i, rating in enumerate(ratings[:10], start=start):
         lines.append(
-            f"{i}. {format_artist(rating.album.album_artist or rating.album.artist)} - {format_release(rating.album)} \\- **{(rating.score / 2):.2f}** ⭐",  # type: ignore[arg-type]
+            f"{i}. {format_artist(rating.album.album_artist or rating.album.artist)} - {format_release(cast('Album', rating.album))} \\- **{(cast('int', rating.score) / 2):.2f}** ⭐",
         )
 
     title = f"Top {year} releases for {user_name}"
@@ -234,7 +234,7 @@ def rating_embed(user: discord.user.User, rating: Rating) -> discord.Embed:
     album = rating.album
 
     title = f"{album.artist} - {album.title} ({album.release_year})"
-    description = f"{score_to_stars(int(rating.score))}\n\n"  # type: ignore[arg-type]
+    description = f"{score_to_stars(int(cast('int', rating.score)))}\n\n"
 
     return (
         EmbedBuilder()
@@ -243,7 +243,11 @@ def rating_embed(user: discord.user.User, rating: Rating) -> discord.Embed:
         .with_url(album.url or create_rym_search_release_url(album.title))
         .with_thumbnail(album.cover_url)
         .with_author(f"{user.name} rated...", str(user.avatar))
-        .with_color(discord.Color(int(RYM_RATING_COLORS[rating.score].lstrip("#"), 16)))
+        .with_color(
+            discord.Color(
+                int(RYM_RATING_COLORS[int(cast("int", rating.score))].lstrip("#"), 16)
+            )
+        )
         .build()
     )
 
@@ -259,7 +263,7 @@ def artist_ratings_embed(
 
     for i, rating in enumerate(ratings, start=start):
         lines.append(
-            f"{i}. {format_release(rating.album)} ({rating.album.release_year}) \\- **{format_star_score(int(rating.score))}**",  # type: ignore[arg-type]
+            f"{i}. {format_release(cast('Album', rating.album))} ({rating.album.release_year}) \\- **{format_star_score(int(cast('int', rating.score)))}**",
         )
 
     title = f"Top {artist} albums for {user_name}"

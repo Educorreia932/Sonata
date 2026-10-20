@@ -13,7 +13,7 @@ dependencies = [
     "discord.py",
     "lyricsgenius",
     "beautifulsoup4",
-    "peewee",
+    "peewee<4",
     "python-dotenv",
     "requests",
     "syncedlyrics",
@@ -22,7 +22,7 @@ authors = [{ name = "Eduardo Correia" }]
 maintainers = [{ name = "Eduardo Correia" }]
 
 [project.optional-dependencies]
-dev = ["pytest>=9.0"]
+dev = ["pytest>=9.0", "pytest-asyncio"]
 docs = ["mkdocs", "mkdocs-material"]
 
 [project.urls]
@@ -38,6 +38,9 @@ testpaths = ["tests"]
 [tool.ty.environment]
 root = [".", "bot"]
 python-version = "3.12"
+
+[tool.ty.rules]
+invalid-attribute-override = "ignore"
 
 [project.scripts]
 sonata = "bot:run"

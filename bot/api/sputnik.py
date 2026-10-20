@@ -30,7 +30,8 @@ def fetch_new_releases() -> list | None:
             album_data = element.find("font", color="#555555")
 
             if artist_data and album_data:
-                artist_name = artist_data.find("b").get_text(strip=True)
+                artist_tag = artist_data.find("b")
+                artist_name = (artist_tag or artist_data).get_text(strip=True)
                 release_name = album_data.get_text(strip=True)
 
                 releases.append(f"{artist_name} - {release_name}")
