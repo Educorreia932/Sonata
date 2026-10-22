@@ -13,7 +13,7 @@ dependencies = [
     "discord.py",
     "lyricsgenius",
     "beautifulsoup4",
-    "peewee<4",
+    "peewee<5",
     "python-dotenv",
     "requests",
     "syncedlyrics",
