@@ -26,7 +26,7 @@
           projectRoot = ./.;
         };
 
-        python = pkgs.python312.override {
+        python = pkgs.python313.override {
           packageOverrides = final: _prev: {
             anyio = _prev.anyio.overridePythonAttrs { doCheck = false; };
             discord-py = final.discordpy;

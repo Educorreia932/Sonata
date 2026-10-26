@@ -17,7 +17,7 @@ from core.errors import (
     RatingsImportFailedError,
     SonataError,
 )
-from core.utils import store_album
+from core.utils import field_in, store_album
 from database import Album, Rating, UserInfo
 from discord import app_commands
 from discord.ext import commands
@@ -78,7 +78,7 @@ class UsersCog(commands.Cog):
 
         ratings = (
             Rating.select(Rating.user, fn.COUNT(Rating.id).alias("rating_count"))
-            .where(Rating.user.in_(guild_member_ids))
+            .where(field_in(Rating.user, guild_member_ids))
             .group_by(Rating.user)
             .order_by(fn.COUNT(Rating.id).desc())
             .limit(100)
@@ -230,7 +230,7 @@ class UsersCog(commands.Cog):
             )
 
         # If the album is not found, create it
-        except Album.DoesNotExist:
+        except Album.DoesNotExist:  # ty: ignore[unresolved-attribute]
             album = Album(
                 title=title,
                 artist=artist,

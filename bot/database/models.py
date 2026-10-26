@@ -1,7 +1,7 @@
 from typing import ClassVar
 
 from peewee import Check, FloatField, ForeignKeyField, IntegerField, TextField
-from playhouse.sqlite_ext import FTSModel, RowIDField, SearchField
+from playhouse.sqlite_ext import FTS5Model, RowIDField, SearchField
 
 from .database import BaseModel, db
 
@@ -20,7 +20,7 @@ class Album(BaseModel):
     url = TextField(null=True)
 
 
-class AlbumIndex(FTSModel):
+class AlbumIndex(FTS5Model):
     rowid = RowIDField()
     title = SearchField()
     artist = SearchField()

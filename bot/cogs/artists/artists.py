@@ -11,6 +11,7 @@ from core.embeds import (
     paginate_embeds,
 )
 from core.errors import NoLastFMUsernameError, NoRatingsFoundError, SonataError
+from core.utils import field_in, fts_column_query
 from database import AlbumIndex, UserInfo
 from database.models import Album, Rating
 from discord import app_commands
@@ -71,7 +72,7 @@ class ArtistCog(commands.Cog):
             )
             .join(Album, on=(AlbumIndex.rowid == Album.id))
             .join(Rating, on=((Rating.album == Album.id) & (Rating.user == user_id)))
-            .where(AlbumIndex.match(f"artist:{artist_query}"))
+            .where(AlbumIndex.match(fts_column_query("artist", artist_query)))
             .group_by(AlbumIndex.artist)
             .order_by(fn.COUNT(Rating.id).desc())
             .first()
@@ -128,7 +129,7 @@ class ArtistCog(commands.Cog):
                 fn.COUNT(fn.DISTINCT(Album.id)).alias("releases_count"),
             )
             .join(Rating)
-            .where(Rating.user.in_(guild_member_ids))
+            .where(field_in(Rating.user, guild_member_ids))
             .group_by(Album.artist)
             .having(fn.COUNT(Rating.id) > 3)
             .order_by(

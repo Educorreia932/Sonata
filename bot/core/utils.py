@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from api.google_search import search_google
@@ -9,6 +10,10 @@ from api.last_fm import get_last_played
 from core.constants import FULL_STAR, HALF_STAR
 from core.errors import NoLastFMUsernameError
 from database import Album, AlbumIndex, UserInfo
+from peewee import OP, Expression, Field
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def score_to_stars(score: int) -> str:
@@ -37,10 +42,10 @@ def store_album(album: Album) -> None:
 
 
 def search_album(album_name: str, artist_name: str = "") -> Album | None:
-    match = f"title:{album_name}"
+    match = fts_column_query("title", album_name)
 
     if artist_name:
-        match += f" artist:{artist_name}"
+        match += " " + fts_column_query("artist", artist_name)
 
     query = (
         AlbumIndex.select(Album)
@@ -202,3 +207,15 @@ def create_rym_search_artist_url(artist_name: str) -> str:
 def create_rym_search_release_url(release_name: str) -> str:
     """Create a RateYourMusic search URL for the given release name."""
     return f"https://rateyourmusic.com/search?searchtype=l&searchterm={quote(release_name)}"
+
+
+def field_in(field: Field, values: Iterable) -> Expression:
+    """Build an SQL `IN` expression (peewee's `in_` is mistyped in its stubs)."""
+    return Expression(field, OP.IN, tuple(values))
+
+
+def fts_column_query(column: str, text: str) -> str:
+    """Quote user text as an FTS5 phrase restricted to a column."""
+    escaped = text.replace('"', '""')
+
+    return f'{column} : "{escaped}"'

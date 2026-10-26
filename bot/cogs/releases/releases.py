@@ -23,7 +23,7 @@ from core.errors import (
     NoRatingsFoundError,
     SonataError,
 )
-from core.utils import fetch_album
+from core.utils import fetch_album, field_in
 from database.models import Album, Rating
 from discord import Member, Message, User, app_commands
 from discord.ext import commands
@@ -108,7 +108,9 @@ class ReleasesCog(commands.Cog):
 
         ratings = list(
             Rating.select()
-            .where((Rating.album == release) & (Rating.user.in_(guild_member_ids)))
+            .where(
+                (Rating.album == release) & (field_in(Rating.user, guild_member_ids))
+            )
             .order_by(Rating.score.desc())
             .iterator(),
         )
@@ -152,7 +154,7 @@ class ReleasesCog(commands.Cog):
                     fn.COUNT(Rating.id).alias("rating_count"),
                 )
                 .join(Rating)
-                .where(Rating.user.in_(guild_member_ids))
+                .where(field_in(Rating.user, guild_member_ids))
                 .group_by(Album.id)
                 .having(fn.COUNT(Rating.id) > 3)
             )
@@ -168,8 +170,8 @@ class ReleasesCog(commands.Cog):
             albums_with_weighted_rating = []
 
             for album in albums:
-                average_rating = album.rating_sum / album.rating_count
-                weighted_rating = (average_rating * w1) + (album.rating_count * w2)
+                average_rating = album.rating_sum / album.rating_count  # ty: ignore[unresolved-attribute]
+                weighted_rating = (average_rating * w1) + (album.rating_count * w2)  # ty: ignore[unsupported-operator]
 
                 albums_with_weighted_rating.append(
                     (album, average_rating, weighted_rating, album.rating_count),
@@ -214,7 +216,7 @@ class ReleasesCog(commands.Cog):
                 Album.title,
                 fn.COUNT(Rating.id).alias("rating_count"),
             )
-            .where(Rating.user.in_(guild_member_ids))
+            .where(field_in(Rating.user, guild_member_ids))
             .join(Rating)
             .group_by(Album)
             .order_by(fn.COUNT(Rating.id).desc())
@@ -251,7 +253,7 @@ class ReleasesCog(commands.Cog):
             rating = (
                 Rating.select()
                 .where(
-                    Rating.score <= 2.0 & (Rating.user.in_(guild_member_ids)),
+                    Rating.score <= 2.0 & (field_in(Rating.user, guild_member_ids)),
                 )
                 .order_by(fn.Random())
                 .first()
@@ -261,7 +263,7 @@ class ReleasesCog(commands.Cog):
             rating = (
                 Rating.select()
                 .where(
-                    Rating.score >= 3.0 & (Rating.user.in_(guild_member_ids)),
+                    Rating.score >= 3.0 & (field_in(Rating.user, guild_member_ids)),
                 )
                 .order_by(fn.Random())
                 .first()
@@ -270,7 +272,7 @@ class ReleasesCog(commands.Cog):
         else:
             rating = (
                 Rating.select()
-                .where(Rating.user.in_(guild_member_ids))
+                .where(field_in(Rating.user, guild_member_ids))
                 .order_by(fn.Random())
                 .first()
             )

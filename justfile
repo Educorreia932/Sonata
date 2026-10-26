@@ -23,7 +23,7 @@ lint-fix:
 
 # Run type checking
 type-check:
-    ty check --exclude "tests/*"
+    ty check
 
 # Format code with ruff
 [group("format")]

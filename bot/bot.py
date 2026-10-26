@@ -50,6 +50,24 @@ async def help_command(ctx: commands.Context) -> None:
     await ctx.send(embed=embed)
 
 
+def rebuild_legacy_album_index() -> None:
+    """Migrate an FTS4 album index (which needs a bm25 extension) to FTS5."""
+    row = db.execute_sql(
+        "SELECT sql FROM sqlite_master WHERE name = ?",
+        (AlbumIndex._meta.table_name,),  # noqa: SLF001
+    ).fetchone()
+
+    if row is None or "fts5" in row[0].lower():
+        return
+
+    db.drop_tables([AlbumIndex])
+    db.create_tables([AlbumIndex])
+    AlbumIndex.insert_from(
+        Album.select(Album.id, Album.title, Album.artist),
+        fields=[AlbumIndex.rowid, AlbumIndex.title, AlbumIndex.artist],
+    ).execute()
+
+
 async def main() -> None:
     async with bot:
         # Load extensions
@@ -63,6 +81,7 @@ async def main() -> None:
         # Create the database tables
         with db:
             db.create_tables([Album, AlbumIndex, Rating, UserInfo])
+            rebuild_legacy_album_index()
 
         # Setup logging
         discord.utils.setup_logging()

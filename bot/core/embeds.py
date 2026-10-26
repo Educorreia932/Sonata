@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from math import ceil
-from typing import TYPE_CHECKING, Self, TypedDict, cast
+from typing import TYPE_CHECKING, Any, Self, TypedDict
 
 import discord
 from core.constants import RYM_RATING_COLORS
@@ -13,9 +13,12 @@ from core.utils import (
 from core.views import PaginatorView
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
     from database.models import Album, Rating
+    from peewee import ModelSelect
+
+    RatingSequence = Sequence[Rating] | ModelSelect[Rating]
 
 
 class EmbedField(TypedDict):
@@ -50,7 +53,7 @@ class EmbedBuilder:
 
         return self
 
-    def with_thumbnail(self, thumbnail: str) -> Self:
+    def with_thumbnail(self, thumbnail: str | None) -> Self:
         self.thumbnail = thumbnail
 
         return self
@@ -151,7 +154,7 @@ def album_embed(album: Album) -> discord.Embed:
 
 
 def who_rated_release_embed(  # ruff: ignore[PLR0917]
-    ratings: list[Rating],
+    ratings: RatingSequence,
     album: Album,
     average_score: int,
     num_ratings: int,
@@ -204,7 +207,7 @@ def best_rated_releases_embed(
 
 
 def album_of_the_year_embed(
-    ratings: list[Rating],
+    ratings: RatingSequence,
     user_name: str,
     year: int,
     start: int = 1,
@@ -214,7 +217,7 @@ def album_of_the_year_embed(
 
     for i, rating in enumerate(ratings[:10], start=start):
         lines.append(
-            f"{i}. {format_artist(rating.album.album_artist or rating.album.artist)} - {format_release(cast('Album', rating.album))} \\- **{(cast('int', rating.score) / 2):.2f}** ⭐",
+            f"{i}. {format_artist(rating.album.album_artist or rating.album.artist)} - {format_release(rating.album)} \\- **{(rating.score / 2):.2f}** ⭐",
         )
 
     title = f"Top {year} releases for {user_name}"
@@ -234,7 +237,7 @@ def rating_embed(user: discord.user.User, rating: Rating) -> discord.Embed:
     album = rating.album
 
     title = f"{album.artist} - {album.title} ({album.release_year})"
-    description = f"{score_to_stars(int(cast('int', rating.score)))}\n\n"
+    description = f"{score_to_stars(int(rating.score))}\n\n"
 
     return (
         EmbedBuilder()
@@ -244,16 +247,14 @@ def rating_embed(user: discord.user.User, rating: Rating) -> discord.Embed:
         .with_thumbnail(album.cover_url)
         .with_author(f"{user.name} rated...", str(user.avatar))
         .with_color(
-            discord.Color(
-                int(RYM_RATING_COLORS[int(cast("int", rating.score))].lstrip("#"), 16)
-            )
+            discord.Color(int(RYM_RATING_COLORS[int(rating.score)].lstrip("#"), 16))
         )
         .build()
     )
 
 
 def artist_ratings_embed(
-    ratings: list[Rating],
+    ratings: RatingSequence,
     artist: str,
     user_name: str,
     average_score: float,
@@ -263,7 +264,7 @@ def artist_ratings_embed(
 
     for i, rating in enumerate(ratings, start=start):
         lines.append(
-            f"{i}. {format_release(cast('Album', rating.album))} ({rating.album.release_year}) \\- **{format_star_score(int(cast('int', rating.score)))}**",
+            f"{i}. {format_release(rating.album)} ({rating.album.release_year}) \\- **{format_star_score(int(rating.score))}**",
         )
 
     title = f"Top {artist} albums for {user_name}"
@@ -282,13 +283,15 @@ def artist_ratings_embed(
 
 def ratinks_rank_embed(
     server_name: str,
-    ratings: list[Rating],
+    ratings: RatingSequence,
     start: int = 1,
 ) -> discord.Embed:
     lines = []
 
     for i, row in enumerate(ratings, start=start):
-        lines.append(f"{i}. <@{row.user}> - **{row.rating_count}** ratings")
+        lines.append(
+            f"{i}. <@{row.user}> - **{row.rating_count}** ratings"
+        )  # ty: ignore[unresolved-attribute]
 
     title = f"{server_name} Ratings Rank"
     description = "\n".join(lines)
@@ -296,7 +299,7 @@ def ratinks_rank_embed(
     return EmbedBuilder().with_title(title).with_description(description).build()
 
 
-def ratings_rank_view(server_name: str, ratings: list[Rating]) -> PaginatorView:
+def ratings_rank_view(server_name: str, ratings: RatingSequence) -> PaginatorView:
     pages = []
     num_pages = ceil(len(ratings) / 10)
 
@@ -399,13 +402,13 @@ def comparison_embed(ratings: list, start: int = 1) -> discord.Embed:
 
 
 def ratings_per_year_embed(
-    ratings: list[Rating],
+    ratings: RatingSequence,
     user: str,
     start: int = 1,
 ) -> discord.Embed:
     """Create an embed for the yearly ratings."""
     description = "\n".join(
-        f"{i}. {rating.album.release_year} - **{rating.rating_count}** ratings"
+        f"{i}. {rating.album.release_year} - **{rating.rating_count}** ratings"  # ty: ignore[unresolved-attribute]
         for i, rating in enumerate(ratings, start=start)
     )
 
@@ -497,7 +500,7 @@ def help_embed() -> discord.Embed:
 
 
 def paginate_embeds(
-    items: list,
+    items: Sequence | ModelSelect[Any],
     embed_fn: Callable,
     per_page: int = 10,
     *args,

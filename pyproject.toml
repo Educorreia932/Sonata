@@ -8,12 +8,12 @@ version = "0.1.0"
 description = "A Discord bot for music lovers"
 readme = "README.md"
 keywords = ["discord", "music", "bot", "rateyourmusic"]
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "discord.py",
     "lyricsgenius",
     "beautifulsoup4",
-    "peewee<5",
+    "peewee >= 4.4.0",
     "python-dotenv",
     "requests",
     "syncedlyrics",
@@ -37,7 +37,7 @@ testpaths = ["tests"]
 
 [tool.ty.environment]
 root = [".", "bot"]
-python-version = "3.12"
+python-version = "3.13"
 
 [tool.ty.rules]
 invalid-attribute-override = "ignore"
